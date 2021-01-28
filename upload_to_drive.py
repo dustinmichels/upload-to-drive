@@ -13,6 +13,10 @@ from termcolor import colored
 # ID of Google Drive folder to upload to
 DRIVE_FOLDER_ID = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
+# If file with given name already exists in folder,
+# Add revision instead of new file.
+REVISE_EXISTING = True
+
 # MIMETYPE of file uploading (can be blank)
 MIMETYPE = ""  # eg, "application/json" or "text/csv"
 # =========================================
@@ -81,10 +85,11 @@ class Uploader:
         return build("drive", "v3", credentials=creds)
 
     def upload_to_drive(self, filename, upload_name):
-        items = self._check_for_existing(filename, upload_name)
-        if items:
-            existing_item_id = items[0]["id"]
-            return self._update_existing(filename, upload_name, existing_item_id)
+        if REVISE_EXISTING:
+            items = self._check_for_existing(filename, upload_name)
+            if items:
+                existing_item_id = items[0]["id"]
+                return self._update_existing(filename, upload_name, existing_item_id)
         return self._upload_new(filename, upload_name)
 
     def _check_for_existing(self, filename, upload_name):
