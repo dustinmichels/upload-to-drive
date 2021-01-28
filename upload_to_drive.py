@@ -1,7 +1,6 @@
 import os.path
 import pickle
 import sys
-from datetime import datetime
 
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -50,6 +49,7 @@ class Uploader:
 
     scopes = ["https://www.googleapis.com/auth/drive.file"]
     drive_folder_id = DRIVE_FOLDER_ID
+    mimetype = MIMETYPE or None
 
     def __init__(self):
         self.service = self.get_creds()
@@ -101,7 +101,7 @@ class Uploader:
     def _update_existing(self, filename, upload_name, existing_item_id):
         print("\n> Updating existing file...")
         file_metadata = dict(name=upload_name)
-        media = MediaFileUpload(filename, mimetype=MIMETYPE)
+        media = MediaFileUpload(filename, mimetype=self.mimetype)
         file = (
             self.service.files()
             .update(
@@ -117,7 +117,7 @@ class Uploader:
     def _upload_new(self, filename, upload_name):
         print("\n> Adding new file...")
         file_metadata = dict(name=upload_name, parents=[self.drive_folder_id])
-        media = MediaFileUpload(filename, mimetype=MIMETYPE)
+        media = MediaFileUpload(filename, mimetype=self.mimetype)
         file = (
             self.service.files()
             .create(
